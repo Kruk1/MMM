@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.signal as sig
-import matplotlib as plot
+import matplotlib.pyplot as plt
 
 
 def menu():
@@ -10,11 +10,14 @@ def menu():
     print("3. Zmiana parametrow obiektu")
     print("4. Zmiana parametrow lead-lag")
     print("5. Zmiana parametrow wejscia")
+    print("6. Wizualizacja sygnalu wejsciowego")
     chose = int(input("Wybierz co chcesz zrobic: "))
     if chose == 3:
         object_param_change()
     elif chose == 4:
         lead_lag_param_change()
+    elif chose == 6:
+        input_signal_vizualization()
 
 
 def object_param_change():
@@ -52,6 +55,16 @@ def lead_lag_param_change():
     print("\n")
 
 
+def input_signal_visualization():
+    plt.plot(t, y)
+    plt.ylim(-2, 2)
+    plt.show()
+
+
+def make_triangle_input(amp, lam=1, phi=0):
+    global y
+    y = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*5*t-phi)/lam))
+
 # parametry obiektu
 a = [3, 1]
 b = [1, 2, 3]
@@ -60,6 +73,12 @@ b = [1, 2, 3]
 k_gains = [1, 1]
 lead_lag_zeros = [1, 1]
 lead_lag_poles = [1, 1]
+
+# sygnal wejsciowy
+t = np.linspace(0, 1, 1000, endpoint=False)
+y = sig.square(2*np.pi*5*t, 0.9)
+
+make_triangle_input(1)
 
 while True:
     menu()
