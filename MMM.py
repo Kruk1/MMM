@@ -16,8 +16,10 @@ def menu():
         object_param_change()
     elif chose == 4:
         lead_lag_param_change()
+    elif chose == 5:
+        input_param_change()
     elif chose == 6:
-        input_signal_vizualization()
+        input_signal_visualization()
 
 
 def object_param_change():
@@ -55,6 +57,31 @@ def lead_lag_param_change():
     print("\n")
 
 
+def input_param_change():
+    global y
+    print(len(y), len(t))
+    print("\n 1. sinus")
+    print("2. prostokatny")
+    print("3. piloksztaltny")
+    print("4. trojkatny")
+    signal_decision = int(input("Na jaki sygnal zmienic: "))
+    amplitude = int(input("Jaka chcesz amplitude sygnalu: "))
+    if signal_decision == 1:
+        yy = []
+        for i in range(len(t)):
+            yy.append(np.sin((np.pi/(len(t)/25))*i*5)*amplitude);
+        y = yy
+    elif signal_decision == 2:
+        duty = float(input("Jakie wypelnienie sygnalu (0-1): "))
+        if 0 <= duty <= 1:
+            y = sig.square(2*np.pi*5*t, duty)*amplitude
+        else:
+            print("Niepoprawna wartosc sprobuj jeszcze raz")
+    elif signal_decision == 3:
+        y = sig.sawtooth(2*np.pi*5*t)*amplitude
+    elif signal_decision == 4:
+        make_triangle_input(amplitude)
+
 def input_signal_visualization():
     plt.plot(t, y)
     plt.ylim(-2, 2)
@@ -77,8 +104,6 @@ lead_lag_poles = [1, 1]
 # sygnal wejsciowy
 t = np.linspace(0, 1, 1000, endpoint=False)
 y = sig.square(2*np.pi*5*t, 0.9)
-
-make_triangle_input(1)
 
 while True:
     menu()
