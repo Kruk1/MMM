@@ -92,6 +92,21 @@ def make_triangle_input(amp, lam=1, phi=0):
     global y
     y = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*5*t-phi)/lam))
 
+
+#parametry transmitancji (l3*s^3+l2*s^2...)/(m4*s^4+m3*s^3...)
+def calculate_transmitation_parameters(lead_lag_zeros, lead_lag_poles, k_gains, a, b):
+    l0 = k_gains[0]*k_gains[1]*a[0]*lead_lag_zeros[0]*lead_lag_zeros[1]
+    l1 = k_gains[0]*k_gains[1]*(a[1]*lead_lag_zeros[0]*lead_lag_zeros[1] - a[0]*lead_lag_zeros[0] - a[0]*lead_lag_zeros[1])
+    l2 = k_gains[0]*k_gains[1]*(a[0] - a[1]*lead_lag_zeros[0] - a[1]*lead_lag_zeros[1])
+    l3 = k_gains[0]*k_gains[1]*a[1]
+    m0 = b[0]*lead_lag_poles[0]*lead_lag_poles[1] + l0
+    m1 = b[1]*lead_lag_poles[0]*lead_lag_poles[1] - b[0]*lead_lag_poles[0] - b[0]*lead_lag_poles[1] + l1
+    m2 = b[2]*lead_lag_poles[0]*lead_lag_poles[1] + b[0] - b[1]*lead_lag_poles[0] - b[1]*lead_lag_poles[1] + l2
+    m3 = b[1] - b[2]*lead_lag_poles[0] - b[2]*lead_lag_poles[1] + l3
+    m4 = b[2]
+    return [l0, l1, l2, l3], [m0, m1, m2, m3, m4]
+
+
 # parametry obiektu
 a = [3, 1]
 b = [1, 2, 3]
