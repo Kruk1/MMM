@@ -1,102 +1,56 @@
 import numpy as np
 import scipy.signal as sig
 import matplotlib.pyplot as plt
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+
+def get_params():
+    a[1] = float(entry_a1.get())
+    a[0] = float(entry_a0.get())
+    b[2] = float(entry_b2.get())
+    b[1] = float(entry_b1.get())
+    b[0] = float(entry_b0.get())
+    k_gains[0] = float(entry_gain0.get())
+    k_gains[1] = float(entry_gain1.get())
+    lead_lag_poles[0] = float(entry_pole0.get())
+    lead_lag_poles[1] = float(entry_pole1.get())
+    lead_lag_zeros[0] = float(entry_zero0.get())
+    lead_lag_zeros[1] = float(entry_zero1.get())
 
 
-def menu():
-    print("Menu programu:")
-    print("1. Start symulacji")
-    print("2. Podglad parametrow")
-    print("3. Zmiana parametrow obiektu")
-    print("4. Zmiana parametrow lead-lag")
-    print("5. Zmiana parametrow wejscia")
-    print("6. Wizualizacja sygnalu wejsciowego")
-    chose = int(input("Wybierz co chcesz zrobic: "))
-    if chose == 1:
-        simulation()
-    elif chose == 2:
-        print('a = ', a, 'b = ', b)
-        print('lead-lag zeros = ', lead_lag_zeros, 'lead-lag poles = ', lead_lag_poles)
-        print('lead-lag gains:', k_gains)
-    elif chose == 3:
-        object_param_change()
-    elif chose == 4:
-        lead_lag_param_change()
-    elif chose == 5:
-        input_param_change()
-    elif chose == 6:
-        input_signal_visualization()
-
-
-def object_param_change():
-    print("\n")
-    print(a, b)
-    which_one = input("Jaki parametr zmienic (a lub b): ")
-    which_index = int(input("Ktory parametr zmienic: "))
-    param_num = int(input("Jaka wartosc wpisac: "))
-    if which_one == "a":
-        if which_index < len(a):
-            a[which_index] = param_num
-    elif which_one == "b":
-        if which_index < len(b):
-            b[which_index] = param_num
-    print(a, b)
-    print("\n")
-
-
-def lead_lag_param_change():
-    print("\n")
-    print(k_gains, lead_lag_zeros, lead_lag_poles)
-    which_one = input("Jaki parametr zmienic (k, z lub p): ")
-    which_index = int(input("Ktory parametr zmienic: "))
-    param_num = int(input("Jaka wartosc wpisac: "))
-    if which_one == "k":
-        if which_index < len(k_gains):
-            k_gains[which_index] = param_num
-    elif which_one == "z":
-        if which_index < len(lead_lag_zeros):
-            lead_lag_zeros[which_index] = param_num
-    elif which_one == "p":
-        if which_index < len(lead_lag_poles):
-            lead_lag_poles[which_index] = param_num
-    print(k_gains, lead_lag_zeros, lead_lag_poles)
-    print("\n")
-
-
-def input_param_change():
+def get_input_params():
     global u
-    print("\n 1. sinus")
-    print("2. prostokatny")
-    print("3. piloksztaltny")
-    print("4. trojkatny")
-    signal_decision = int(input("Na jaki sygnal zmienic: "))
-    amplitude = float(input("Jaka chcesz amplitude sygnalu: "))
-    frequency = float(input("Jaka czestotliwosc: "))
-    if signal_decision == 1:
+    
+    signal_decision = choice.get()
+    amplitude = float(entry_amp.get())
+    frequency = float(entry_freq.get())
+    if signal_decision == "Sine wave":
         uu = []
         for i in range(len(t)):
-            uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude);  #(2*np.pi/(len(t)/1000))
+            uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude);  
         u = uu
-    elif signal_decision == 2:
-        duty = float(input("Jakie wypelnienie sygnalu (0-1): "))
+    elif signal_decision == "Square wave":
+        duty = float(entry_duty.get())
         if 0 <= duty <= 1:
             u = sig.square(2*np.pi*frequency*t, duty)*amplitude
         else:
             print("Niepoprawna wartosc sprobuj jeszcze raz")
-    elif signal_decision == 3:
+    elif signal_decision == "Sawtooth wave":
         u = sig.sawtooth(2*np.pi*frequency*t)*amplitude
-    elif signal_decision == 4:
+    elif signal_decision == "Triangle wave":
         make_triangle_input(amplitude,frequency)
-
-def input_signal_visualization():
-    plt.plot(t, u)
-    plt.show()
-
+    else:
+        u = amplitude*np.ones(len(t))
 
 def make_triangle_input(amp, freq, lam=1, phi=0):
     global u
     u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t-phi)/lam))
 
+def input_signal_visualization():
+    get_input_params()
+    plt.plot(t, u)
+    plt.show()
 
 #parametry transmitancji (l3*s^3+l2*s^2...)/(m4*s^4+m3*s^3...)
 def calculate_transmitation_parameters():
@@ -169,7 +123,7 @@ def calculate_state_parameters(L,M):
     
     return m_stanu_A, m_stanu_B, m_stanu_C, m_stanu_D
 
-def integration(m_stanu_A, m_stanu_B, x, h, u0, u1): 
+def integration(m_stanu_A, m_stanu_B, x, h, u0, u1): #całkowanie metodą trapezów
     x_p = np.zeros((4,1))
     x_b = x
     for j in range(4):
@@ -183,6 +137,8 @@ def integration(m_stanu_A, m_stanu_B, x, h, u0, u1):
 def simulation():
     x = np.zeros((4,1))
     y = np.zeros(len(t))
+    get_params()
+    get_input_params()
     L, M = calculate_transmitation_parameters()
     Ax, Bu, Cx, Du = calculate_state_parameters(L,M)
     for i in range(1,len(t)):
@@ -193,19 +149,127 @@ def simulation():
     plt.show()
 
 # parametry obiektu
-a = [3, 1]
-b = [1, 2, 3]
+a = [0, 0]
+b = [0, 0, 0]
 
 # parametry lead-lag       k_gains = [lead, lag]
 k_gains = [1, 1]
 lead_lag_zeros = [0, 0]
 lead_lag_poles = [0, 0]
 
-# sygnal wejsciowy
 t = np.linspace(0, 10, 1000, endpoint=False)
-#u = sig.square(2*np.pi*5*t, 0.9)
 
-while True:
-    menu()
+#GUI
+def combobox_selected(event=None):
+    sig_type = choice.get()
 
+    if sig_type != "Unit jump":
+        freq_label.grid(column=2, row=10)
+        entry_freq.grid(column=3, row=10)
+    else:
+        freq_label.grid_forget()
+        entry_freq.grid_forget()
 
+    if sig_type == "Square wave":
+        duty_label.grid(column=4, row=10)
+        entry_duty.grid(column=5, row=10)
+    else:
+        duty_label.grid_forget()
+        entry_duty.grid_forget()
+
+root = tk.Tk()
+root.title("MMM-simulator")
+
+diagram_img = tk.PhotoImage(file='MMM_diagram.png')
+label_img = tk.Label(root, image=diagram_img)
+label_img.grid(column=0, row=0, columnspan=7)
+
+ttk.Label(root, text="Object parameters:").grid(column=0, row=1, sticky="w", columnspan=2)
+
+ttk.Label(root, text="a1:").grid(column=0, row=2, sticky="w")
+entry_a1 = ttk.Entry(root)
+entry_a1.insert(0,"0")
+entry_a1.grid(column=1, row=2)
+
+ttk.Label(root, text="a0:").grid(column=2, row=2, sticky="w")
+entry_a0 = ttk.Entry(root)
+entry_a0.insert(0,"1")
+entry_a0.grid(column=3, row=2)
+
+ttk.Label(root, text="b2:").grid(column=0, row=3, sticky="w")
+entry_b2 = ttk.Entry(root)
+entry_b2.insert(0,"0")
+entry_b2.grid(column=1, row=3)
+
+ttk.Label(root, text="b1:").grid(column=2, row=3, sticky="w")
+entry_b1 = ttk.Entry(root)
+entry_b1.insert(0,"0")
+entry_b1.grid(column=3, row=3)
+
+ttk.Label(root, text="b0:").grid(column=4, row=3, sticky="w")
+entry_b0 = ttk.Entry(root)
+entry_b0.insert(0,"1")
+entry_b0.grid(column=5, row=3)
+
+ttk.Label(root, text="LEAD parameters:").grid(column=0, row=4, sticky="w", columnspan=2)
+
+ttk.Label(root, text="gain(k):").grid(column=0, row=5, sticky="w")
+entry_gain0 = ttk.Entry(root)
+entry_gain0.insert(0,"1")
+entry_gain0.grid(column=1, row=5)
+
+ttk.Label(root, text="z:").grid(column=2, row=5, sticky="w")
+entry_zero0 = ttk.Entry(root)
+entry_zero0.insert(0,"0")
+entry_zero0.grid(column=3, row=5)
+
+ttk.Label(root, text="p:").grid(column=4, row=5, sticky="w")
+entry_pole0 = ttk.Entry(root)
+entry_pole0.insert(0,"0")
+entry_pole0.grid(column=5, row=5)
+
+ttk.Label(root, text="LAG parameters:").grid(column=0, row=6, sticky="w", columnspan=2)
+
+ttk.Label(root, text="gain(k):").grid(column=0, row=7, sticky="w")
+entry_gain1 = ttk.Entry(root)
+entry_gain1.insert(0,"1")
+entry_gain1.grid(column=1, row=7)
+
+ttk.Label(root, text="z:").grid(column=2, row=7, sticky="w")
+entry_zero1 = ttk.Entry(root)
+entry_zero1.insert(0,"0")
+entry_zero1.grid(column=3, row=7)
+
+ttk.Label(root, text="p:").grid(column=4, row=7, sticky="w")
+entry_pole1 = ttk.Entry(root)
+entry_pole1.insert(0,"0")
+entry_pole1.grid(column=5, row=7)
+
+ttk.Label(root, text="Input parameters").grid(column=0, row=8, sticky="w", columnspan=2)
+
+ttk.Label(root, text="Wave type:").grid(column=0, row=9, sticky="w")
+options = ["Unit jump","Sine wave", "Square wave", "Sawtooth wave", "Triangle wave"]
+choice = ttk.Combobox(root, values=options)
+choice.set("Unit jump")
+choice.grid(column=1, row = 9, columnspan=2)
+choice.bind("<<ComboboxSelected>>", combobox_selected)
+
+ttk.Label(root, text="Amplitude:").grid(column=0, row=10, sticky="w")
+entry_amp = ttk.Entry(root)
+entry_amp.insert(0,"1")
+entry_amp.grid(column=1, row=10)
+
+freq_label = ttk.Label(root, text="Frequency:")
+entry_freq = ttk.Entry(root)
+entry_freq.insert(0,"1")
+
+duty_label = ttk.Label(root, text="Duty cycle:")
+entry_duty = ttk.Entry(root)
+entry_duty.insert(0,"0.5")
+
+combobox_selected()
+
+ttk.Button(root, text="Simulate", command=simulation).grid(column=5, row=11, columnspan=2, pady=10)
+ttk.Button(root, text="Show input signal", command=input_signal_visualization).grid(column=0, row=11, columnspan=2, pady=10)
+
+root.mainloop()
