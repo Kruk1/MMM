@@ -250,7 +250,7 @@ ttk.Label(root, text="Input parameters").grid(column=0, row=8, sticky="w", colum
 ttk.Label(root, text="Wave type:").grid(column=0, row=9, sticky="w")
 options = ["Unit jump","Sine wave", "Square wave", "Sawtooth wave", "Triangle wave"]
 choice = ttk.Combobox(root, values=options)
-choice.set("Unit jump")
+choice.set("Unit step")
 choice.grid(column=1, row = 9, columnspan=2)
 choice.bind("<<ComboboxSelected>>", combobox_selected)
 
