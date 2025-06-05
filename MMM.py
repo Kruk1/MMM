@@ -248,7 +248,7 @@ entry_pole1.grid(column=5, row=7)
 ttk.Label(root, text="Input parameters").grid(column=0, row=8, sticky="w", columnspan=2)
 
 ttk.Label(root, text="Wave type:").grid(column=0, row=9, sticky="w")
-options = ["Unit jump","Sine wave", "Square wave", "Sawtooth wave", "Triangle wave"]
+options = ["Unit step","Sine wave", "Square wave", "Sawtooth wave", "Triangle wave"]
 choice = ttk.Combobox(root, values=options)
 choice.set("Unit step")
 choice.grid(column=1, row = 9, columnspan=2)
