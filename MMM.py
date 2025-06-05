@@ -3,7 +3,6 @@ import scipy.signal as sig
 import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 
 def get_params():
     a[1] = float(entry_a1.get())
@@ -163,7 +162,7 @@ t = np.linspace(0, 10, 1000, endpoint=False)
 def combobox_selected(event=None):
     sig_type = choice.get()
 
-    if sig_type != "Unit jump":
+    if sig_type != "Unit step":
         freq_label.grid(column=2, row=10)
         entry_freq.grid(column=3, row=10)
     else:
@@ -259,11 +258,11 @@ entry_amp = ttk.Entry(root)
 entry_amp.insert(0,"1")
 entry_amp.grid(column=1, row=10)
 
-freq_label = ttk.Label(root, text="Frequency:")
+freq_label = ttk.Label(root, text="Frequency [Hz]:")
 entry_freq = ttk.Entry(root)
 entry_freq.insert(0,"1")
 
-duty_label = ttk.Label(root, text="Duty cycle:")
+duty_label = ttk.Label(root, text="Duty cycle (0-1):")
 entry_duty = ttk.Entry(root)
 entry_duty.insert(0,"0.5")
 
