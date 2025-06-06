@@ -31,20 +31,31 @@ def get_input_params():
             uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude)
         u = uu
     elif signal_decision == "Square wave":
+        uu = []
         duty = float(entry_duty.get())
-        faza = ((t * 2 * frequency / 1000 + 1) % 2) + (duty - 1.0)
         if 0 <= duty <= 1:
-            u = ((faza >= 0).astype(int) * 2 - 1) * amplitude
+            for i in range(len(t)):
+                faza = (0.01 * i * 2 * frequency * np.pi)%(2*np.pi)
+                if faza < (duty * 2 * np.pi):
+                    uu.append(amplitude)
+                else:
+                    uu.append(-amplitude)
+            u = uu
         else:
             print("Niepoprawna wartosc sprobuj jeszcze raz")
     elif signal_decision == "Square wave (ended)":
+        uu = []
         duty = float(entry_duty.get())
-        faza = ((t2 * 2 * frequency / 1000 + 1) % 2) + (duty - 1.0)
         if 0 <= duty <= 1:
-            u = ((faza >= 0).astype(int) * 2 - 1) * amplitude
+            for i in range(len(t2)):
+                faza = (0.01 * i * 2 * frequency * np.pi)%(2*np.pi)
+                if faza < (duty * 2 * np.pi):
+                    uu.append(amplitude)
+                else:
+                    uu.append(-amplitude)
             for i in range(500):
-                u = numpy.append(u, 0)
-            print(u)
+                uu.append(0)
+            u = uu
         else:
             print("Niepoprawna wartosc sprobuj jeszcze raz")
     elif signal_decision == "Sawtooth wave":
