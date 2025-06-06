@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 import scipy.signal as sig
 import matplotlib.pyplot as plt
@@ -28,12 +29,23 @@ def get_input_params():
     if signal_decision == "Sine wave":
         uu = []
         for i in range(len(t)):
-            uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude);  
+            uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude)
         u = uu
     elif signal_decision == "Square wave":
         duty = float(entry_duty.get())
+        faza = ((t * 2 * frequency / 1000 + 1) % 2) + (duty - 1.0)
         if 0 <= duty <= 1:
-            u = sig.square(2*np.pi*frequency*t, duty)*amplitude
+            u = ((faza >= 0).astype(int) * 2 - 1) * amplitude
+        else:
+            print("Niepoprawna wartosc sprobuj jeszcze raz")
+    elif signal_decision == "Square wave (ended)":
+        duty = float(entry_duty.get())
+        faza = ((t2 * 2 * frequency / 1000 + 1) % 2) + (duty - 1.0)
+        if 0 <= duty <= 1:
+            u = ((faza >= 0).astype(int) * 2 - 1) * amplitude
+            for i in range(500):
+                u = numpy.append(u, 0)
+            print(u)
         else:
             print("Niepoprawna wartosc sprobuj jeszcze raz")
     elif signal_decision == "Sawtooth wave":
@@ -157,7 +169,8 @@ k_gains = [1, 1]
 lead_lag_zeros = [0, 0]
 lead_lag_poles = [0, 0]
 
-t = np.linspace(0, 10, 1000, endpoint=False)
+t = np.linspace(0, 20, 1000, endpoint=False)
+t2 = np.linspace(0, 10, 500, endpoint=False)
 
 #GUI
 def combobox_selected(event=None):
@@ -170,7 +183,7 @@ def combobox_selected(event=None):
         freq_label.grid_forget()
         entry_freq.grid_forget()
 
-    if sig_type == "Square wave":
+    if sig_type == "Square wave" or sig_type == "Square wave (ended)":
         duty_label.grid(column=4, row=10)
         entry_duty.grid(column=5, row=10)
     else:
@@ -248,7 +261,7 @@ entry_pole1.grid(column=5, row=7)
 ttk.Label(root, text="Input parameters").grid(column=0, row=8, sticky="w", columnspan=2)
 
 ttk.Label(root, text="Wave type:").grid(column=0, row=9, sticky="w")
-options = ["Unit step","Sine wave", "Square wave", "Sawtooth wave", "Triangle wave"]
+options = ["Unit step","Sine wave", "Square wave", "Square wave (ended)", "Sawtooth wave", "Triangle wave"]
 choice = ttk.Combobox(root, values=options)
 choice.set("Unit step")
 choice.grid(column=1, row = 9, columnspan=2)
