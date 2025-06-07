@@ -19,23 +19,24 @@ def get_params():
     lead_lag_zeros[1] = float(entry_zero1.get())
 
 
-def get_input_params():
+def get_input_params(t, t2):
     global u
     
     signal_decision = choice.get()
     amplitude = float(entry_amp.get())
     frequency = float(entry_freq.get())
+    h = float(integra_step.get())
     if signal_decision == "Sine wave":
         uu = []
         for i in range(len(t)):
-            uu.append((np.sin(frequency*2*np.pi*i*0.01))*amplitude)
+            uu.append((np.sin(frequency*2*np.pi*i*h))*amplitude)
         u = uu
     elif signal_decision == "Square wave":
         uu = []
         duty = float(entry_duty.get())
         if 0 <= duty <= 1:
             for i in range(len(t)):
-                faza = (0.01 * i * 2 * frequency * np.pi)%(2*np.pi)
+                faza = (h * i * 2 * frequency * np.pi)%(2*np.pi)
                 if faza < (duty * 2 * np.pi):
                     uu.append(amplitude)
                 else:
@@ -48,7 +49,7 @@ def get_input_params():
         duty = float(entry_duty.get())
         if 0 <= duty <= 1:
             for i in range(len(t2)):
-                faza = (0.01 * i * 2 * frequency * np.pi)%(2*np.pi)
+                faza = (h * i * 2 * frequency * np.pi)%(2*np.pi)
                 if faza < (duty * 2 * np.pi):
                     uu.append(amplitude)
                 else:
@@ -61,17 +62,21 @@ def get_input_params():
     elif signal_decision == "Sawtooth wave":
         u = sig.sawtooth(2*np.pi*frequency*t)*amplitude
     elif signal_decision == "Triangle wave":
-        make_triangle_input(amplitude,frequency)
+        make_triangle_input(amplitude,frequency,t)
     else:
         u = amplitude*np.ones(len(t))
 
 def make_triangle_input(amp, freq, lam=1, phi=0):
     global u
+    h = float(integra_step.get())
+    t = np.linspace(0, 20, (20/h), endpoint=False)
     u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t-phi)/lam))
 
-def input_signal_visualization():
+def input_signal_visualization(t):
     get_input_params()
     plt.plot(t, u)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
     plt.show()
 
 #parametry transmitancji (l3*s^3+l2*s^2...)/(m4*s^4+m3*s^3...)
@@ -157,19 +162,25 @@ def integration(m_stanu_A, m_stanu_B, x, h, u0, u1): #całkowanie metodą trapez
     return x
 
 def simulation():
+    h = float(integra_step.get())
+    t = np.linspace(0, 20, int(20/h), endpoint=False)
+    t2 = np.linspace(0, 10, int(10/h), endpoint=False)
+
     x = np.zeros((4,1))
     y = np.zeros(len(t))
     get_params()
-    get_input_params()
+    get_input_params(t, t2)
     L, M = calculate_transmitation_parameters()
     Ax, Bu, Cx, Du = calculate_state_parameters(L,M)
-    h = float(integra_step.get())
     for i in range(1,len(t)):
         x = integration(Ax, Bu, x, h, u[i-1], u[i])
         y[i] = Cx[0,0]*x[0,0] + Cx[0,1]*x[1,0] + Cx[0,2]*x[2,0] + Cx[0,3]*x[3,0] + Du*u[i]
     
     plt.plot(t,y)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
     plt.show()
+    
 
 # parametry obiektu
 a = [0, 0]
@@ -179,9 +190,6 @@ b = [0, 0, 0]
 k_gains = [1, 1]
 lead_lag_zeros = [0, 0]
 lead_lag_poles = [0, 0]
-
-t = np.linspace(0, 20, 1000, endpoint=False)
-t2 = np.linspace(0, 10, 500, endpoint=False)
 
 #GUI
 def combobox_selected(event=None):
@@ -237,34 +245,34 @@ entry_b0.grid(column=5, row=3)
 
 ttk.Label(root, text="LEAD parameters:").grid(column=0, row=4, sticky="w", columnspan=2)
 
-ttk.Label(root, text="gain(k):").grid(column=0, row=5, sticky="w")
+ttk.Label(root, text="gain(k1):").grid(column=0, row=5, sticky="w")
 entry_gain0 = ttk.Entry(root)
 entry_gain0.insert(0,"1")
 entry_gain0.grid(column=1, row=5)
 
-ttk.Label(root, text="z:").grid(column=2, row=5, sticky="w")
+ttk.Label(root, text="z1:").grid(column=2, row=5, sticky="w")
 entry_zero0 = ttk.Entry(root)
 entry_zero0.insert(0,"0")
 entry_zero0.grid(column=3, row=5)
 
-ttk.Label(root, text="p:").grid(column=4, row=5, sticky="w")
+ttk.Label(root, text="p1:").grid(column=4, row=5, sticky="w")
 entry_pole0 = ttk.Entry(root)
 entry_pole0.insert(0,"0")
 entry_pole0.grid(column=5, row=5)
 
 ttk.Label(root, text="LAG parameters:").grid(column=0, row=6, sticky="w", columnspan=2)
 
-ttk.Label(root, text="gain(k):").grid(column=0, row=7, sticky="w")
+ttk.Label(root, text="gain(k2):").grid(column=0, row=7, sticky="w")
 entry_gain1 = ttk.Entry(root)
 entry_gain1.insert(0,"1")
 entry_gain1.grid(column=1, row=7)
 
-ttk.Label(root, text="z:").grid(column=2, row=7, sticky="w")
+ttk.Label(root, text="z2:").grid(column=2, row=7, sticky="w")
 entry_zero1 = ttk.Entry(root)
 entry_zero1.insert(0,"0")
 entry_zero1.grid(column=3, row=7)
 
-ttk.Label(root, text="p:").grid(column=4, row=7, sticky="w")
+ttk.Label(root, text="p2:").grid(column=4, row=7, sticky="w")
 entry_pole1 = ttk.Entry(root)
 entry_pole1.insert(0,"0")
 entry_pole1.grid(column=5, row=7)
