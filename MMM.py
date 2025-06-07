@@ -163,8 +163,9 @@ def simulation():
     get_input_params()
     L, M = calculate_transmitation_parameters()
     Ax, Bu, Cx, Du = calculate_state_parameters(L,M)
+    h = float(integra_step.get())
     for i in range(1,len(t)):
-        x = integration(Ax, Bu, x, 0.01, u[i-1], u[i])
+        x = integration(Ax, Bu, x, h, u[i-1], u[i])
         y[i] = Cx[0,0]*x[0,0] + Cx[0,1]*x[1,0] + Cx[0,2]*x[2,0] + Cx[0,3]*x[3,0] + Du*u[i]
     
     plt.plot(t,y)
@@ -274,13 +275,13 @@ ttk.Label(root, text="Wave type:").grid(column=0, row=9, sticky="w")
 options = ["Unit step","Sine wave", "Square wave", "Square wave (ended)", "Sawtooth wave", "Triangle wave"]
 choice = ttk.Combobox(root, values=options)
 choice.set("Unit step")
-choice.grid(column=1, row = 9, columnspan=2)
+choice.grid(column=1, row = 9)
 choice.bind("<<ComboboxSelected>>", combobox_selected)
 
 ttk.Label(root, text="Amplitude:").grid(column=0, row=10, sticky="w")
 entry_amp = ttk.Entry(root)
 entry_amp.insert(0,"1")
-entry_amp.grid(column=1, row=10)
+entry_amp.grid(column=1, row=10, pady=10)
 
 freq_label = ttk.Label(root, text="Frequency [Hz]:")
 entry_freq = ttk.Entry(root)
@@ -292,7 +293,12 @@ entry_duty.insert(0,"0.5")
 
 combobox_selected()
 
-ttk.Button(root, text="Simulate", command=simulation).grid(column=5, row=11, columnspan=2, pady=10)
-ttk.Button(root, text="Show input signal", command=input_signal_visualization).grid(column=0, row=11, columnspan=2, pady=10)
+ttk.Label(root, text="Integration step: ").grid(column=0, row=11, sticky="w")
+integra_step = ttk.Entry(root)
+integra_step.insert(0, "0.001")
+integra_step.grid(column=1, row=11)
+
+ttk.Button(root, text="Simulate", command=simulation).grid(column=5, row=12, columnspan=2, pady=10)
+ttk.Button(root, text="Show input signal", command=input_signal_visualization).grid(column=0, row=12, columnspan=2, pady=10)
 
 root.mainloop()
