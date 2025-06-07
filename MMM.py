@@ -48,13 +48,13 @@ def get_input_params():
         uu = []
         duty = float(entry_duty.get())
         if 0 <= duty <= 1:
-            for i in range(len(t2)):
+            for i in range(int(len(t)/2)):
                 faza = (h * i * 2 * frequency * np.pi)%(2*np.pi)
                 if faza < (duty * 2 * np.pi):
                     uu.append(amplitude)
                 else:
                     uu.append(-amplitude)
-            for i in range(500):
+            for i in range(int(len(t)/2)):
                 uu.append(0)
             u = uu
         else:
@@ -62,13 +62,13 @@ def get_input_params():
     elif signal_decision == "Sawtooth wave":
         u = sig.sawtooth(2*np.pi*frequency*t)*amplitude
     elif signal_decision == "Triangle wave":
-        make_triangle_input(amplitude,frequency,t)
+        make_triangle_input(amplitude,frequency)
     else:
         u = amplitude*np.ones(len(t))
 
-def make_triangle_input(amp, freq, lam=1, phi=0):
+def make_triangle_input(amp, freq):
     global u
-    u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t-phi)/lam))
+    u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t)))
 
 def input_signal_visualization():
     global t
@@ -163,10 +163,9 @@ def integration(m_stanu_A, m_stanu_B, x, h, u0, u1): #całkowanie metodą trapez
     return x
 
 def simulation():
-    global t, t2
+    global t
     h = float(integra_step.get())
     t = np.linspace(0, 20, int(20/h), endpoint=False)
-    t2 = np.linspace(0, 10, int(10/h), endpoint=False)
 
     x = np.zeros((4,1))
     y = np.zeros(len(t))
