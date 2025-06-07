@@ -19,7 +19,7 @@ def get_params():
     lead_lag_zeros[1] = float(entry_zero1.get())
 
 
-def get_input_params(t, t2):
+def get_input_params():
     global u
     
     signal_decision = choice.get()
@@ -68,11 +68,12 @@ def get_input_params(t, t2):
 
 def make_triangle_input(amp, freq, lam=1, phi=0):
     global u
-    h = float(integra_step.get())
-    t = np.linspace(0, 20, int(20/h), endpoint=False)
     u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t-phi)/lam))
 
-def input_signal_visualization(t):
+def input_signal_visualization():
+    global t
+    h = float(integra_step.get())
+    t = np.linspace(0, 20, int(20/h), endpoint=False)
     get_input_params()
     plt.plot(t, u)
     plt.xlabel("Time [s]")
@@ -162,6 +163,7 @@ def integration(m_stanu_A, m_stanu_B, x, h, u0, u1): #całkowanie metodą trapez
     return x
 
 def simulation():
+    global t, t2
     h = float(integra_step.get())
     t = np.linspace(0, 20, int(20/h), endpoint=False)
     t2 = np.linspace(0, 10, int(10/h), endpoint=False)
@@ -169,7 +171,7 @@ def simulation():
     x = np.zeros((4,1))
     y = np.zeros(len(t))
     get_params()
-    get_input_params(t, t2)
+    get_input_params()
     L, M = calculate_transmitation_parameters()
     Ax, Bu, Cx, Du = calculate_state_parameters(L,M)
     for i in range(1,len(t)):
