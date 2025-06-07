@@ -69,7 +69,7 @@ def get_input_params(t, t2):
 def make_triangle_input(amp, freq, lam=1, phi=0):
     global u
     h = float(integra_step.get())
-    t = np.linspace(0, 20, (20/h), endpoint=False)
+    t = np.linspace(0, 20, int(20/h), endpoint=False)
     u = (2*amp/np.pi)*np.arcsin(np.sin((2*np.pi*freq*t-phi)/lam))
 
 def input_signal_visualization(t):
